@@ -63,6 +63,21 @@ squares, the path (which is really just a 3D surface), etc.
 ![code structure](resources/screenshots/code_structure_diagram.png)
 ![code strucutre](resources/screenshots/code_structure_visual.png)
 
+## GitHub Pages
+
+This project is deployed to GitHub Pages. To view the live website, visit: https://0rajnishk.github.io/gradient_descent_viz/
+
+### Enabling GitHub Pages (for maintainers)
+
+If you've forked this repository or are a maintainer, you can enable GitHub Pages by:
+
+1. Go to your repository's Settings
+2. Navigate to "Pages" in the left sidebar
+3. Under "Source", select "GitHub Actions"
+4. The workflow will automatically deploy the site when you push to the master branch
+
+The site will be available at `https://<username>.github.io/gradient_descent_viz/`
+
 ## Contribution
 
 Contributions are welcome. Looking for help to turn this project into a webapp.
