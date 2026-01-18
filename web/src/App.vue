@@ -32,7 +32,14 @@
         </div>
       </header>
 
-      <main class="mx-auto grid min-h-0 w-full max-w-[1400px] flex-1 grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[1fr_420px]">
+      <!--
+        Responsive layout:
+        - Mobile/tablet: 2 rows (viz on top with a guaranteed height, controls below scrollable)
+        - Desktop (lg+): 2 columns (viz left, controls right)
+      -->
+      <main
+        class="mx-auto grid min-h-0 w-full max-w-[1400px] flex-1 grid-cols-1 grid-rows-[minmax(320px,45vh)_minmax(0,1fr)] gap-4 px-4 py-4 lg:grid-cols-[1fr_420px] lg:grid-rows-1"
+      >
         <section class="relative min-h-0 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
           <div ref="threeHost" class="absolute inset-0"></div>
 
