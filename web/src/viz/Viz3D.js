@@ -79,26 +79,9 @@ export class Viz3D {
     axes.position.y = 0.01;
     this.scene.add(axes);
 
-    // Single-method actors (M0)
-    this.ball = new THREE.Mesh(
-      new THREE.SphereGeometry(0.06, 20, 16),
-      new THREE.MeshStandardMaterial({ color: new THREE.Color("#22d3ee") })
-    );
-    this.scene.add(this.ball);
-
-    this.pathLine = new THREE.Line(
-      new THREE.BufferGeometry(),
-      new THREE.LineBasicMaterial({ color: new THREE.Color("#22d3ee"), transparent: true, opacity: 0.9 })
-    );
-    this.scene.add(this.pathLine);
-
-    // Path line data (preallocated buffer to avoid BufferGeometry resizing warnings)
-    this.maxPathPoints = 10_000;
-    this.pathCount = 0;
-    this.pathPositions = new Float32Array(this.maxPathPoints * 3);
-    this.pathLine.geometry.setAttribute("position", new THREE.BufferAttribute(this.pathPositions, 3));
-    this.pathLine.geometry.setDrawRange(0, 0);
-    this.pathLine.geometry.computeBoundingSphere();
+    // Method actors (M1 overview mode)
+    // key -> { ball, pathLine, maxPoints, count, positions }
+    this.methodActors = new Map();
 
     this._onResize = () => this.resize();
     window.addEventListener("resize", this._onResize);
@@ -114,10 +97,14 @@ export class Viz3D {
       this.surfaceMesh = null;
     }
     this.surfaceMaterial.dispose();
-    this.ball.geometry.dispose();
-    this.ball.material.dispose();
-    this.pathLine.geometry.dispose();
-    this.pathLine.material.dispose();
+
+    for (const actor of this.methodActors.values()) {
+      actor.ball.geometry.dispose();
+      actor.ball.material.dispose();
+      actor.pathLine.geometry.dispose();
+      actor.pathLine.material.dispose();
+    }
+    this.methodActors.clear();
   }
 
   resize() {
@@ -137,39 +124,98 @@ export class Viz3D {
     this.gridSize = gridSize;
     this.yScale = yScale;
     this._rebuildSurfaceMesh();
+
+    // Re-project method actors onto the new surface scale.
+    for (const [key, actor] of this.methodActors) {
+      this._reprojectActorPath(key);
+      this._reprojectActorBall(key);
+    }
   }
 
   surfaceY(x, z) {
     return f(x, z, this.functionName) * this.yScale;
   }
 
-  resetPath() {
-    this.pathCount = 0;
-    this.pathLine.geometry.setDrawRange(0, 0);
-    // No need to clear the array; drawRange controls what's rendered.
-    this.pathLine.geometry.attributes.position.needsUpdate = true;
+  ensureMethodActor(key, colorHex) {
+    if (this.methodActors.has(key)) return;
+
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 20, 16),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(colorHex) })
+    );
+    this.scene.add(ball);
+
+    const pathLine = new THREE.Line(
+      new THREE.BufferGeometry(),
+      new THREE.LineBasicMaterial({ color: new THREE.Color(colorHex), transparent: true, opacity: 0.9 })
+    );
+    this.scene.add(pathLine);
+
+    const maxPoints = 10_000;
+    const positions = new Float32Array(maxPoints * 3);
+    pathLine.geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    pathLine.geometry.setDrawRange(0, 0);
+    pathLine.geometry.computeBoundingSphere();
+
+    this.methodActors.set(key, { ball, pathLine, maxPoints, count: 0, positions });
   }
 
-  appendPathPoint(x, z) {
-    if (this.pathCount >= this.maxPathPoints) {
-      // Hard cap for M0. Later we can implement thinning/decimation.
-      return;
-    }
+  setMethodEnabled(key, enabled) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    actor.ball.visible = !!enabled;
+    actor.pathLine.visible = !!enabled;
+  }
+
+  resetMethodPath(key) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    actor.count = 0;
+    actor.pathLine.geometry.setDrawRange(0, 0);
+    actor.pathLine.geometry.attributes.position.needsUpdate = true;
+  }
+
+  appendMethodPoint(key, x, z) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    if (actor.count >= actor.maxPoints) return;
     const y = this.surfaceY(x, z);
-    const i = this.pathCount * 3;
-    this.pathPositions[i + 0] = x;
-    this.pathPositions[i + 1] = y;
-    this.pathPositions[i + 2] = z;
-    this.pathCount += 1;
+    const i = actor.count * 3;
+    actor.positions[i + 0] = x;
+    actor.positions[i + 1] = y;
+    actor.positions[i + 2] = z;
+    actor.count += 1;
 
-    this.pathLine.geometry.setDrawRange(0, this.pathCount);
-    this.pathLine.geometry.attributes.position.needsUpdate = true;
-    // Optional but helps culling correctness as the line grows.
-    this.pathLine.geometry.computeBoundingSphere();
+    actor.pathLine.geometry.setDrawRange(0, actor.count);
+    actor.pathLine.geometry.attributes.position.needsUpdate = true;
+    actor.pathLine.geometry.computeBoundingSphere();
   }
 
-  setBallPosition(x, z) {
-    this.ball.position.set(x, this.surfaceY(x, z), z);
+  setMethodBallPosition(key, x, z) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    actor.ball.position.set(x, this.surfaceY(x, z), z);
+  }
+
+  _reprojectActorPath(key) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    for (let p = 0; p < actor.count; p++) {
+      const i = p * 3;
+      const x = actor.positions[i + 0];
+      const z = actor.positions[i + 2];
+      actor.positions[i + 1] = this.surfaceY(x, z);
+    }
+    actor.pathLine.geometry.attributes.position.needsUpdate = true;
+    actor.pathLine.geometry.computeBoundingSphere();
+  }
+
+  _reprojectActorBall(key) {
+    const actor = this.methodActors.get(key);
+    if (!actor) return;
+    const x = actor.ball.position.x;
+    const z = actor.ball.position.z;
+    actor.ball.position.y = this.surfaceY(x, z);
   }
 
   render() {
