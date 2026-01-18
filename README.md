@@ -47,6 +47,33 @@ For pre-built app for Windows (64 bits), download the file [gradient_descent_viz
 To build it from source code, download and install Qt 5.10 or above (https://www.qt.io/download) for your platform. This app uses the Qt Data Visualization package; make sure to include that in your installation as well.
 Checkout this repository, and build and run gradient_descent_visualization.pro within the Qt Creator IDE.
 
+## Continuous Integration & Deployment
+
+This project uses GitHub Actions for automated building and deployment:
+
+### Automated Builds
+The workflow automatically builds the application for three platforms:
+- **Windows** (64-bit)
+- **macOS** (64-bit)
+- **Linux** (64-bit)
+
+Builds are triggered on:
+- Push to `master` or `main` branches
+- Pull requests to `master` or `main` branches
+- Manual workflow dispatch
+- Version tags (for releases)
+
+### Artifacts
+After each successful build, the compiled applications are uploaded as workflow artifacts and can be downloaded from the Actions tab.
+
+### Creating Releases
+To create a new release with pre-built binaries:
+1. Tag your commit with a version tag: `git tag v1.0.0`
+2. Push the tag: `git push origin v1.0.0`
+3. GitHub Actions will automatically build all platforms and create a release with the binaries attached
+
+The workflow file is located at `.github/workflows/build-and-deploy.yml`.
+
 
 ## Code Structure
 
