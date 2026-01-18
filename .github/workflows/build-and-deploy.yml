@@ -1,0 +1,146 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ master, main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+        modules: 'qtdatavis3d'
+        
+    - name: Build
+      run: |
+        qmake gradient_descent_visualization.pro
+        nmake
+        
+    - name: Package
+      run: |
+        mkdir deploy
+        copy release\gradient_descent_visualization.exe deploy\
+        windeployqt deploy\gradient_descent_visualization.exe
+        
+    - name: Create Archive
+      run: |
+        Compress-Archive -Path deploy\* -DestinationPath gradient_descent_viz_windows64bit.zip
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: gradient_descent_viz_windows64bit.zip
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'mac'
+        target: 'desktop'
+        modules: 'qtdatavis3d'
+        
+    - name: Build
+      run: |
+        qmake gradient_descent_visualization.pro
+        make
+        
+    - name: Package
+      run: |
+        macdeployqt gradient_descent_visualization.app -dmg
+        mv gradient_descent_visualization.dmg gradient_descent_visualization-macOS64bit.dmg
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-build
+        path: gradient_descent_visualization-macOS64bit.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'linux'
+        target: 'desktop'
+        modules: 'qtdatavis3d'
+        
+    - name: Build
+      run: |
+        qmake gradient_descent_visualization.pro
+        make
+        
+    - name: Package
+      run: |
+        mkdir -p deploy/gradient_descent_visualization
+        cp gradient_descent_visualization deploy/gradient_descent_visualization/
+        cd deploy
+        tar -czf gradient_descent_viz_linux64bit.tar.gz gradient_descent_visualization/
+        mv gradient_descent_viz_linux64bit.tar.gz ..
+        
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-build
+        path: gradient_descent_viz_linux64bit.tar.gz
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download Windows Build
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-build
+        
+    - name: Download macOS Build
+      uses: actions/download-artifact@v3
+      with:
+        name: macos-build
+        
+    - name: Download Linux Build
+      uses: actions/download-artifact@v3
+      with:
+        name: linux-build
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          gradient_descent_viz_windows64bit.zip
+          gradient_descent_visualization-macOS64bit.dmg
+          gradient_descent_viz_linux64bit.tar.gz
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
