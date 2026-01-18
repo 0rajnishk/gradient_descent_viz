@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Descent Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .download-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .download-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .download-btn.macos {
+            background: #333;
+        }
+
+        .download-btn.macos:hover {
+            background: #000;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .demo-section h3 {
+            color: #764ba2;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .demo-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-link {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .blog-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .blog-link a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #333;
+            color: white;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .code-structure {
+            margin: 2rem 0;
+        }
+
+        .code-structure img {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎯 Gradient Descent Visualization</h1>
+        <p>A desktop app for visualizing popular gradient descent methods in machine learning</p>
+    </header>
+
+    <div class="container">
+        <div class="download-section">
+            <h2 style="text-align: center; margin-bottom: 1rem;">Download the App</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem;">
+                Available for macOS and Windows (64-bit)
+            </p>
+            <div class="download-buttons">
+                <a href="https://github.com/0rajnishk/gradient_descent_viz/raw/master/gradient_descent_visualization-macOS64bit.dmg" class="download-btn macos">
+                    📱 Download for macOS
+                </a>
+                <a href="https://github.com/0rajnishk/gradient_descent_viz/raw/master/gradient_descent_viz_windows64bit.zip" class="download-btn">
+                    🪟 Download for Windows
+                </a>
+            </div>
+        </div>
+
+        <div class="blog-link">
+            📖 Read the accompanying blog post: 
+            <a href="https://towardsdatascience.com/a-visual-explanation-of-gradient-descent-methods-momentum-adagrad-rmsprop-adam-f898b102325c" target="_blank">
+                A Visual Explanation of Gradient Descent Methods (Momentum, AdaGrad, RMSProp, Adam)
+            </a>
+        </div>
+
+        <div class="demo-section">
+            <h2>✨ Overview</h2>
+            <p>
+                Gradient Descent Viz visualizes popular gradient descent methods in machine learning, 
+                including vanilla gradient descent, momentum, AdaGrad, RMSProp, and Adam. 
+                By playing around with different settings, anyone—beginner or expert—can gain 
+                new intuitive understanding of these methods.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-overview.gif" alt="Overview Demo">
+        </div>
+
+        <div class="demo-section">
+            <h2>🎨 Features</h2>
+            
+            <h3>Different Surfaces</h3>
+            <p>
+                Choose between different surfaces to visualize how each algorithm handles various scenarios. 
+                For example, see how Adam and RMSProp handle saddle points much better than simple gradient descent or momentum.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-surface.gif" alt="Surface Demo">
+
+            <h3>Parameter Tuning</h3>
+            <p>
+                Tune parameters to see their effects in real-time. Right-click and drag to rotate, 
+                use arrow keys to navigate, and Ctrl (or Cmd) + plus/minus to zoom. 
+                Experiment with learning rates and see how they affect the optimization process.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-parameter-tuning.gif" alt="Parameter Tuning Demo">
+
+            <h3>Step-by-Step Animation</h3>
+            <p>
+                Watch step-by-step cartoons to visualize the calculation process of each method. 
+                Understand the inner workings of momentum descent and other algorithms.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-step-by-step.gif" alt="Step by Step Demo">
+
+            <h3>Visual Elements</h3>
+            <p>
+                Track gradients, momentum, sum of squared gradients, adjusted gradients, and paths. 
+                Use visual elements to understand what makes each method work under different circumstances.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-visual-elements.gif" alt="Visual Elements Demo">
+
+            <h3>Path Drawing</h3>
+            <p>
+                Draw the path of descents to see how different methods reach their destination in different ways.
+            </p>
+            <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/demo-path.gif" alt="Path Demo">
+        </div>
+
+        <div class="demo-section">
+            <h2>🛠️ Building from Source</h2>
+            <p>
+                This is a C++ app written in Qt, using the free Qt open-source licensed version. It works cross-platform.
+            </p>
+            <h3>Prerequisites</h3>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li>Qt 5.10 or above (<a href="https://www.qt.io/download" target="_blank">download here</a>)</li>
+                <li>Qt Data Visualization package (include in your Qt installation)</li>
+            </ul>
+            <h3>Build Steps</h3>
+            <ol style="margin-left: 2rem; margin-top: 1rem;">
+                <li>Clone this repository</li>
+                <li>Open <code>gradient_descent_visualization.pro</code> in Qt Creator IDE</li>
+                <li>Build and run the project</li>
+            </ol>
+        </div>
+
+        <div class="demo-section">
+            <h2>🏗️ Code Structure</h2>
+            <div class="code-structure">
+                <ul style="margin-left: 2rem;">
+                    <li><strong>window class:</strong> Responsible for UI layout, including all widgets (spinbox, input text box, etc.) on the sidebar</li>
+                    <li><strong>plot_area class:</strong> Responsible for actions inside the plot region, including methods responding to user inputs</li>
+                    <li><strong>animation class:</strong> Controls the logic for animation. Each descent method has its own derived animation class</li>
+                    <li><strong>item class:</strong> Custom 3D items such as arrows, squares, and paths</li>
+                    <li><strong>GradientDescent class:</strong> Mathematical implementations of each descent method</li>
+                </ul>
+                <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/code_structure_diagram.png" alt="Code Structure Diagram">
+                <img src="https://raw.githubusercontent.com/0rajnishk/gradient_descent_viz/master/resources/screenshots/code_structure_visual.png" alt="Code Structure Visual">
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🤝 Contribution</h2>
+            <p>
+                Contributions are welcome! We're particularly interested in help to turn this project into a webapp.
+            </p>
+            <p style="margin-top: 1rem;">
+                Visit the <a href="https://github.com/0rajnishk/gradient_descent_viz" target="_blank">GitHub repository</a> 
+                to contribute or report issues.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            Made with ❤️ by the community | 
+            <a href="https://github.com/0rajnishk/gradient_descent_viz" target="_blank">View on GitHub</a> | 
+            <a href="https://github.com/0rajnishk/gradient_descent_viz/blob/master/LICENSE" target="_blank">License</a>
+        </p>
+    </footer>
+</body>
+</html>
